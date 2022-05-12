@@ -6,11 +6,39 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
 
 struct ContentView: View {
+    @StateObject var viewModel = FoodSearchViewModel()
     var body: some View {
-        Text("Hello, world!")
+        VStack{
+            HStack{
+                TextField("음식이름을 검색해주세요.", text: $viewModel.searchTerm)
+                    .textFieldStyle(.roundedBorder)
+                    .onChange(of: viewModel.searchTerm) { newValue in
+                        viewModel.getResults(searchTerm: newValue) { results in
+                            viewModel.results = results
+                        }
+                    }
+                    
+                
+                Button {
+                    viewModel.getResults(searchTerm: viewModel.searchTerm) { results in
+                        viewModel.results = results
+                    }
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .font(.title3)
+                }
+
+            }
             .padding()
+            List{
+                ForEach(viewModel.results){ result in
+                    Text(result.name?.raw ?? "Example")
+                }
+            }
+        }
     }
 }
 
