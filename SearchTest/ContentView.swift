@@ -35,7 +35,26 @@ struct ContentView: View {
             .padding()
             List{
                 ForEach(viewModel.results){ result in
-                    Text(result.name?.raw ?? "Example")
+                    HStack{
+                        VStack(alignment:.leading){
+                            Text(result.manufacture?.raw ?? "")
+                                .font(.footnote)
+                                .fontWeight(.light)
+                            Text(result.foodname?.raw ?? "")
+                                .font(.title3)
+                                .fontWeight(.bold)
+                            
+                        }
+                        
+                        Spacer()
+                        VStack{
+                            Text("\(Int(result.kcal.raw ?? 0)) Kcal")
+                            
+                            Text("\(result.meta.score)")
+                        }
+
+                    }
+
                 }
             }
         }

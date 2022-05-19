@@ -12,7 +12,12 @@ class FoodSearchViewModel:ObservableObject{
     @Published var searchTerm:String = ""
     
     func getResults(searchTerm:String,completion:@escaping([Result])->Void){
-        let searchObject:[String:Any] = ["query":searchTerm]
+        let searchObject:[String:Any] = [
+            "query":searchTerm,
+            "page":[
+                "size":100,"current":1
+            ]
+        ]
         let jsonSearchQuery = try? JSONSerialization.data(withJSONObject: searchObject)
         let authenticationToken = "Bearer search-iyhhhogb8x5sxpmvyu46nmz4"
         let url = URL(string: "https://leegyoungmin.ent.asia-northeast3.gcp.elastic-cloud.com/api/as/v1/engines/food/search")!
@@ -21,6 +26,8 @@ class FoodSearchViewModel:ObservableObject{
         request.httpMethod = "POST"
         request.setValue(authenticationToken, forHTTPHeaderField: "Authorization")
         request.httpBody = jsonSearchQuery
+        
+        print("Url In Request ::: \(request.httpBody?.debugDescription)")
         
         if !searchTerm.isEmpty{
             URLSession.shared.dataTask(with: request) { data, response, error in
@@ -38,6 +45,8 @@ class FoodSearchViewModel:ObservableObject{
         }
     }
 }
+
+import Foundation
 
 // MARK: - Food
 struct Food: Codable {
@@ -84,20 +93,19 @@ struct Page: Codable {
 // MARK: - Result
 struct Result: Codable,Identifiable {
     let id = UUID()
-    let no, kcal:RawNumber?
-    let unit, name, detail: RawString?
+    let manufacture: RawString?
+    let kcal, sodium: RawNumber
+    let foodname: RawString?
+    let carbs, protein, fat: RawNumber
     let meta: MetaClass
-    let category: RawString?
-    let searving: RawNumber?
+    let intake: RawNumber
 
     enum CodingKeys: String, CodingKey {
-        case no, kcal, unit, name, detail
+        case manufacture, kcal, sodium, foodname, carbs, protein, fat
         case meta = "_meta"
-        case id, category, searving
+        case id, intake
     }
 }
-
-
 struct RawString:Codable{
     let raw:String?
 }
@@ -108,6 +116,16 @@ struct RawArrayOfStrings:Codable{
 
 struct RawNumber:Codable{
     let raw:Double?
+}
+
+// MARK: - Carbs
+struct Carbs: Codable {
+    let raw: Double
+}
+
+// MARK: - Foodname
+struct Foodname: Codable {
+    let raw: String
 }
 
 // MARK: - MetaClass
@@ -358,3 +376,4 @@ class JSONAny: Codable {
         }
     }
 }
+
